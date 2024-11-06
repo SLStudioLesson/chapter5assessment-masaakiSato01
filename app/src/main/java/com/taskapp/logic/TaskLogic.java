@@ -3,6 +3,13 @@ package com.taskapp.logic;
 import com.taskapp.dataaccess.LogDataAccess;
 import com.taskapp.dataaccess.TaskDataAccess;
 import com.taskapp.dataaccess.UserDataAccess;
+import com.taskapp.exception.AppException;
+import com.taskapp.model.Log;
+import com.taskapp.model.Task;
+import com.taskapp.model.User;
+
+import java.time.LocalDate;
+import java.util.List;
 
 public class TaskLogic {
     private final TaskDataAccess taskDataAccess;
@@ -34,8 +41,20 @@ public class TaskLogic {
      * @see com.taskapp.dataaccess.TaskDataAccess#findAll()
      * @param loginUser ログインユーザー
      */
-    // public void showAll(User loginUser) {
-    // }
+     public void showAll(User loginUser) {
+         List<Task> taskList = taskDataAccess.findAll();
+
+         for (Task task : taskList){
+             if (task.getRepUser().getCode() == loginUser.getCode()){
+                 System.out.println("タスク名:"+task.getName()+",担当者名:あなたが担当しています。"+
+                         "ステータス:"+task.getStatus());
+             }else {
+                 System.out.println("タスク名:"+task.getName()+",担当者名:"+task.getRepUser().getName()+"が担当しています。"+
+                         "ステータス:"+task.getStatus());
+             }
+         }
+
+     }
 
     /**
      * 新しいタスクを保存します。
@@ -49,9 +68,21 @@ public class TaskLogic {
      * @param loginUser ログインユーザー
      * @throws AppException ユーザーコードが存在しない場合にスローされます
      */
-    // public void save(int code, String name, int repUserCode,
-    //                 User loginUser) throws AppException {
-    // }
+     public void save(int code, String name, int repUserCode,
+                     User loginUser) throws AppException {
+         List<Task> taskList = taskDataAccess.findAll();
+         for (Task task : taskList){
+             if (task.getRepUser().getCode() == repUserCode){
+                 Task addTask = new Task(code,name,0,loginUser);
+                 taskDataAccess.save(addTask);
+                 Log log = new Log(code,loginUser.getCode(),0, LocalDate.now());
+                 logDataAccess.save(log);
+                 return;
+             }
+         }
+         throw new AppException("存在するユーザーコードを入力してください");
+
+     }
 
     /**
      * タスクのステータスを変更します。
