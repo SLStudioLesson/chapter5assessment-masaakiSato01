@@ -101,7 +101,6 @@ public class TaskUI {
 
                 loginUser = userLogic.login(email, password);
 
-
                 System.out.println("ユーザー名:" + loginUser.getName() + "でログインしました");
                 flg = false;
             } catch (IOException e) {
@@ -146,7 +145,6 @@ public class TaskUI {
                 taskLogic.save(Integer.parseInt(code), name, Integer.parseInt(repUser), loginUser);
 
                 flg = false;
-
 
             } catch (IOException e) {
                 e.printStackTrace();
@@ -193,7 +191,7 @@ public class TaskUI {
                 System.out.print("ステータスを変更するタスクコードを入力してください：");
                 String taskCode = reader.readLine();
                 if (isNumeric(taskCode)) {
-                    System.out.println("ステータスを変更するタスクコードを入力してください：");
+                    System.out.println("コードは半角の数字で入力してください");
                     continue;
                 }
 
@@ -210,8 +208,18 @@ public class TaskUI {
                     continue;
                 }
 
+                taskLogic.changeStatus(
+                        Integer.parseInt(taskCode),
+                        Integer.parseInt(selectMenu),
+                        loginUser);
+
+                flg = false;
 
             } catch (IOException e) {
+                e.printStackTrace();
+            } catch (NumberFormatException e) {
+                e.printStackTrace();
+            } catch (AppException e) {
                 e.printStackTrace();
             }
         }
